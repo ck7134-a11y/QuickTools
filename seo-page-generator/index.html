@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SEO Page Generator | QuickTools</title>
+<meta name="description" content="キーワードやタイトルを入力して、複数のSEO向け静的HTMLページとsitemap.xmlを一括生成できる無料ツール。">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#1f2937;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}header{background:#111827;color:#fff;padding:24px 16px}header div,main{max-width:1100px;margin:auto}h1{margin:0;font-size:28px}header p{margin:7px 0 0;color:#cbd5e1}.card{background:#fff;border:1px solid #dbe1ea;border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 8px 24px #0f172a0d}main{padding:0 12px 48px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}label{display:block;font-size:12px;color:#6b7280;margin:0 0 5px}input,textarea,select{width:100%;padding:10px 11px;border:1px solid #dbe1ea;border-radius:10px;background:#fff;font:inherit}textarea{min-height:110px;resize:vertical}.hint{font-size:12px;color:#6b7280;line-height:1.6}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}button{border:0;border-radius:11px;padding:11px 15px;font-weight:700;background:#2563eb;color:#fff;cursor:pointer}button.secondary{background:#eef2f7;color:#25324a}button:disabled{opacity:.45;cursor:not-allowed}.rows{overflow-x:auto}.row{display:grid;grid-template-columns:1.2fr 1.5fr 1fr 70px;gap:8px;align-items:end;padding:10px 0;border-top:1px solid #eef1f5}.row:first-child{border-top:0}.remove{background:#fee2e2;color:#991b1b}.status{margin-top:12px;font-size:13px;color:#166534}.preview{border:1px solid #e5e7eb;border-radius:14px;padding:16px;background:#fafafa}.preview h2{margin:0 0 8px}.tag{display:inline-block;background:#eef2ff;color:#3730a3;padding:4px 8px;border-radius:999px;font-size:12px;margin-right:5px}.warning{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-radius:12px;padding:10px;font-size:12px;line-height:1.6}@media(max-width:760px){.grid,.grid3{grid-template-columns:1fr}.row{grid-template-columns:1fr}.remove{width:100%}}
+</style>
+</head>
+<body>
+<header><div><h1>SEO Page Generator</h1><p>複数のSEOページを、入力データからまとめて生成</p></div></header>
+<main>
+<section class="card">
+<div class="grid">
+<div><label>サイト名</label><input id="siteName" value="FileFit"></div>
+<div><label>公開サイトURL</label><input id="baseUrl" value="https://example.com" placeholder="https://example.com"></div>
+</div>
+<div class="grid" style="margin-top:12px">
+<div><label>共通CTAボタン文言</label><input id="ctaText" value="無料で使う"></div>
+<div><label>共通CTAリンク</label><input id="ctaUrl" value="/" placeholder="/file-compressor/"></div>
+</div>
+</section>
+
+<section class="card">
+<h2 style="margin-top:0">ページを追加</h2>
+<div class="grid3">
+<div><label>キーワード</label><input id="keyword" placeholder="PDF 1MB以下"></div>
+<div><label>ページタイトル</label><input id="title" placeholder="PDFを1MB以下に圧縮する方法"></div>
+<div><label>URLスラッグ</label><input id="slug" placeholder="pdf-1mb"></div>
+</div>
+<div style="margin-top:12px"><label>このページ固有の説明</label><textarea id="description" placeholder="誰向けのページか、何ができるかを具体的に入力してください。"></textarea></div>
+<div class="actions"><button id="add">ページを追加</button><button id="sample" class="secondary">サンプル3件を追加</button></div>
+</section>
+
+<section class="card">
+<h2 style="margin-top:0">CSVから一括追加</h2>
+<p class="hint">1行目は見出し不要。<b>keyword,title,slug,description</b> の順で貼り付けます。</p>
+<textarea id="csv" placeholder="PDF 1MB以下,PDFを1MB以下に圧縮する方法,pdf-1mb,メール添付やWeb提出向けにPDFを1MB以下へ小さくする方法を紹介します。"></textarea>
+<div class="actions"><button id="importCsv" class="secondary">CSVを読み込む</button></div>
+</section>
+
+<section class="card">
+<h2 style="margin-top:0">生成予定ページ <span id="count">0</span>件</h2>
+<div id="rows" class="rows"><div class="hint">まだページがありません。</div></div>
+</section>
+
+<section class="card">
+<h2 style="margin-top:0">プレビュー</h2>
+<div id="preview" class="preview"><span class="hint">ページを追加すると、先頭ページをここに表示します。</span></div>
+</section>
+
+<section class="card">
+<div class="warning">大量生成する場合も、タイトルや本文を単純に数字だけ置き換えるのではなく、検索意図ごとに内容を変えてください。薄い重複ページを大量に公開すると、SEO上逆効果になる可能性があります。</div>
+<div class="actions"><button id="download" disabled>HTML＋sitemapをZIP保存</button><button id="clear" class="secondary">すべてクリア</button></div>
+<div id="status" class="status"></div>
+</section>
+</main>
+<script>
+const rowsEl=document.getElementById('rows'),countEl=document.getElementById('count'),previewEl=document.getElementById('preview'),downloadBtn=document.getElementById('download'),statusEl=document.getElementById('status');
+let pages=[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const cleanSlug=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-_]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+function parseCSVLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur.trim());cur=''}else cur+=c}out.push(cur.trim());return out}
+function addPage(p){p.keyword=(p.keyword||'').trim();p.title=(p.title||'').trim();p.slug=cleanSlug(p.slug||p.keyword);p.description=(p.description||'').trim();if(!p.keyword||!p.title||!p.slug)return false;if(pages.some(x=>x.slug===p.slug)){p.slug=p.slug+'-'+(pages.length+1)}pages.push(p);render();return true}
+function render(){countEl.textContent=pages.length;downloadBtn.disabled=!pages.length;if(!pages.length){rowsEl.innerHTML='<div class="hint">まだページがありません。</div>';previewEl.innerHTML='<span class="hint">ページを追加すると、先頭ページをここに表示します。</span>';return}rowsEl.innerHTML=pages.map((p,i)=>`<div class="row"><div><label>キーワード</label><input data-i="${i}" data-k="keyword" value="${esc(p.keyword)}"></div><div><label>タイトル</label><input data-i="${i}" data-k="title" value="${esc(p.title)}"></div><div><label>スラッグ</label><input data-i="${i}" data-k="slug" value="${esc(p.slug)}"></div><button class="remove" data-r="${i}">削除</button></div>`).join('');rowsEl.querySelectorAll('input').forEach(x=>x.onchange=()=>{const i=+x.dataset.i,k=x.dataset.k;pages[i][k]=k==='slug'?cleanSlug(x.value):x.value.trim();renderPreview()});rowsEl.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{pages.splice(+b.dataset.r,1);render()});renderPreview()}
+function renderPreview(){if(!pages.length)return;const p=pages[0],site=document.getElementById('siteName').value||'Site';previewEl.innerHTML=`<span class="tag">${esc(p.keyword)}</span><h2>${esc(p.title)}</h2><p>${esc(p.description||`${p.keyword}について分かりやすく解説します。`)}</p><p><b>${esc(site)}</b> の関連ツールを使って、その場で作業できます。</p>`}
+function htmlFor(p){const site=esc(document.getElementById('siteName').value||'Site'),cta=esc(document.getElementById('ctaText').value||'無料で使う'),ctaUrl=esc(document.getElementById('ctaUrl').value||'/'),desc=esc(p.description||`${p.keyword}について分かりやすく解説します。`),kw=esc(p.keyword),title=esc(p.title);return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} | ${site}</title><meta name="description" content="${desc}"><meta name="robots" content="index,follow"><style>body{margin:0;background:#f7f8fb;color:#1f2937;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans-serif}header{background:#111827;color:#fff;padding:28px 16px}header div,main{max-width:860px;margin:auto}main{padding:24px 14px 50px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:22px;margin-bottom:16px}.btn{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:11px}h1{font-size:30px}.muted{color:#6b7280;line-height:1.8}</style></head><body><header><div><strong>${site}</strong><h1>${title}</h1></div></header><main><section class="card"><p class="muted">${desc}</p><a class="btn" href="${ctaUrl}">${cta}</a></section><section class="card"><h2>${kw}について</h2><p class="muted">${kw}で困っている方向けに、最短で目的を達成する方法をまとめています。利用するサービスや提出先によって条件が異なる場合は、事前に容量・形式・画質の指定も確認してください。</p><h2>使い方</h2><ol class="muted"><li>対象ファイルや情報を準備します。</li><li>上のボタンから関連ツールを開きます。</li><li>処理後の結果を確認して保存します。</li></ol><h2>よくある質問</h2><h3>無料で使えますか？</h3><p class="muted">基本機能は無料で利用できます。</p><h3>スマートフォンでも使えますか？</h3><p class="muted">ブラウザで開けるページであれば、スマートフォンからも利用できます。</p></section></main></body></html>`}
+
+document.getElementById('add').onclick=()=>{const p={keyword:document.getElementById('keyword').value,title:document.getElementById('title').value,slug:document.getElementById('slug').value,description:document.getElementById('description').value};if(addPage(p)){['keyword','title','slug','description'].forEach(id=>document.getElementById(id).value='');statusEl.textContent='ページを追加しました。'}else statusEl.textContent='キーワード・タイトル・スラッグを入力してください。'};
+document.getElementById('sample').onclick=()=>{[{keyword:'PDF 1MB以下',title:'PDFを1MB以下に圧縮する方法',slug:'pdf-1mb',description:'メール添付やWeb提出向けに、PDFを1MB以下へ小さくしたい方向けのページです。'},{keyword:'画像 500KB以下',title:'画像を500KB以下に圧縮する方法',slug:'image-500kb',description:'JPGやPNG画像を500KB以下にしたい方向けのページです。'},{keyword:'写真 1MB以下',title:'写真を1MB以下にする方法',slug:'photo-1mb',description:'スマホ写真などを1MB以下へ小さくしたい方向けのページです。'}].forEach(addPage);statusEl.textContent='サンプル3件を追加しました。'};
+document.getElementById('importCsv').onclick=()=>{const text=document.getElementById('csv').value.trim();if(!text){statusEl.textContent='CSVを貼り付けてください。';return}let n=0;text.split(/\r?\n/).filter(Boolean).forEach(line=>{const [keyword,title,slug,description='']=parseCSVLine(line);if(addPage({keyword,title,slug,description}))n++});statusEl.textContent=`CSVから${n}件追加しました。`};
+document.getElementById('clear').onclick=()=>{pages=[];render();statusEl.textContent='クリアしました。'};
+['siteName','baseUrl','ctaText','ctaUrl'].forEach(id=>document.getElementById(id).oninput=renderPreview);
+downloadBtn.onclick=async()=>{if(!pages.length)return;const zip=new JSZip(),base=(document.getElementById('baseUrl').value||'https://example.com').replace(/\/$/,'');pages.forEach(p=>zip.file(`${p.slug}/index.html`,htmlFor(p)));const urls=pages.map(p=>`  <url><loc>${base}/${encodeURIComponent(p.slug)}/</loc></url>`).join('\n');zip.file('sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`);zip.file('pages.csv','keyword,title,slug,description\n'+pages.map(p=>[p.keyword,p.title,p.slug,p.description].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n'));statusEl.textContent='ZIPを作成中…';const blob=await zip.generateAsync({type:'blob'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='seo-pages.zip';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000);statusEl.textContent=`${pages.length}ページとsitemap.xmlを保存しました。`};
+render();
+</script>
+</body>
+</html>
