@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ck7134-a11y.github.io/QuickTools/sitemap.xml
