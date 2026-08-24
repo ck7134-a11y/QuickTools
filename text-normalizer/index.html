@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全角・半角統一ツール | QuickTools</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#1f2937;--muted:#6b7280;--line:#dbe1ea;--blue:#2563eb;--green:#15803d}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#111827;color:#fff;padding:22px 16px}header>div,main{max-width:1100px;margin:auto}h1{font-size:24px;margin:0}header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
+main{padding:18px 12px 50px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:14px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.opt{border:1px solid var(--line);border-radius:12px;padding:11px;background:#fafcff}.opt label{font-weight:700;font-size:13px}.opt select{width:100%;margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:9px;background:#fff}
+textarea{width:100%;min-height:330px;padding:12px;border:1px solid var(--line);border-radius:12px;resize:vertical;font:14px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#fff}
+button{border:0;border-radius:11px;padding:11px 15px;font-weight:800;background:var(--blue);color:white;cursor:pointer}button.secondary{background:#eef2f7;color:#25324a}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.filepick{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff}.hint{font-size:12px;color:var(--muted);line-height:1.6}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#f8fafc;border-radius:10px;padding:9px}.stat small{display:block;color:var(--muted)}.stat b{font-size:17px}.preset{display:flex;gap:8px;flex-wrap:wrap}.badge{font-size:11px;background:#ecfdf5;color:#166534;border:1px solid #bbf7d0;border-radius:999px;padding:5px 9px}
+@media(max-width:760px){.grid,.opts{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}textarea{min-height:240px}}
+</style>
+</head>
+<body>
+<header><div><h1>全角・半角統一ツール</h1><p>テキスト・TXT・CSVの表記ゆれをブラウザ内でまとめて整えます</p></div></header>
+<main>
+<section class="card">
+<div class="preset"><button onclick="presetBusiness()">業務向け標準化</button><button class="secondary" onclick="presetFull()">全角寄せ</button><button class="secondary" onclick="presetHalf()">半角寄せ</button><span class="badge">ファイルは外部送信しません</span></div>
+<div class="opts" style="margin-top:14px">
+<div class="opt"><label>英数字</label><select id="ascii"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+<div class="opt"><label>スペース</label><select id="space"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+<div class="opt"><label>カタカナ</label><select id="kana"><option value="full">全角に統一</option><option value="half">半角に統一</option><option value="keep">変更しない</option></select></div>
+<div class="opt"><label>一般記号</label><select id="symbol"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+</div>
+</section>
+<section class="card">
+<label><b>テキストファイルを読み込む</b></label>
+<input id="file" class="filepick" type="file" accept=".txt,.csv,text/plain,text/csv">
+<p class="hint">UTF-8 / Shift_JIS を自動判定して読み込みます。保存はUTF-8です。</p>
+</section>
+<section class="grid">
+<div class="card"><h3>変換前</h3><textarea id="input" placeholder="ここにテキストを貼り付けるか、上からファイルを読み込んでください"></textarea></div>
+<div class="card"><h3>変換後</h3><textarea id="output" readonly></textarea></div>
+</section>
+<section class="card">
+<div class="actions"><button onclick="convertText()">変換する</button><button class="secondary" onclick="copyOut()">変換後をコピー</button><button class="secondary" onclick="downloadOut()">TXTで保存</button><button class="secondary" onclick="clearAll()">クリア</button></div>
+<div class="stats"><div class="stat"><small>変換前文字数</small><b id="before">0</b></div><div class="stat"><small>変換後文字数</small><b id="after">0</b></div><div class="stat"><small>変更箇所目安</small><b id="changed">0</b></div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);let currentName='converted.txt';
+function presetBusiness(){$('ascii').value='half';$('space').value='half';$('kana').value='full';$('symbol').value='half'}
+function presetFull(){$('ascii').value='full';$('space').value='full';$('kana').value='full';$('symbol').value='full'}
+function presetHalf(){$('ascii').value='half';$('space').value='half';$('kana').value='half';$('symbol').value='half'}
+const halfKanaMap={'。':'｡','「':'｢','」':'｣','、':'､','・':'･','ヲ':'ｦ','ァ':'ｧ','ィ':'ｨ','ゥ':'ｩ','ェ':'ｪ','ォ':'ｫ','ャ':'ｬ','ュ':'ｭ','ョ':'ｮ','ッ':'ｯ','ー':'ｰ','ア':'ｱ','イ':'ｲ','ウ':'ｳ','エ':'ｴ','オ':'ｵ','カ':'ｶ','キ':'ｷ','ク':'ｸ','ケ':'ｹ','コ':'ｺ','サ':'ｻ','シ':'ｼ','ス':'ｽ','セ':'ｾ','ソ':'ｿ','タ':'ﾀ','チ':'ﾁ','ツ':'ﾂ','テ':'ﾃ','ト':'ﾄ','ナ':'ﾅ','ニ':'ﾆ','ヌ':'ﾇ','ネ':'ﾈ','ノ':'ﾉ','ハ':'ﾊ','ヒ':'ﾋ','フ':'ﾌ','ヘ':'ﾍ','ホ':'ﾎ','マ':'ﾏ','ミ':'ﾐ','ム':'ﾑ','メ':'ﾒ','モ':'ﾓ','ヤ':'ﾔ','ユ':'ﾕ','ヨ':'ﾖ','ラ':'ﾗ','リ':'ﾘ','ル':'ﾙ','レ':'ﾚ','ロ':'ﾛ','ワ':'ﾜ','ン':'ﾝ'};
+const voiced={'ガ':'ｶﾞ','ギ':'ｷﾞ','グ':'ｸﾞ','ゲ':'ｹﾞ','ゴ':'ｺﾞ','ザ':'ｻﾞ','ジ':'ｼﾞ','ズ':'ｽﾞ','ゼ':'ｾﾞ','ゾ':'ｿﾞ','ダ':'ﾀﾞ','ヂ':'ﾁﾞ','ヅ':'ﾂﾞ','デ':'ﾃﾞ','ド':'ﾄﾞ','バ':'ﾊﾞ','ビ':'ﾋﾞ','ブ':'ﾌﾞ','ベ':'ﾍﾞ','ボ':'ﾎﾞ','パ':'ﾊﾟ','ピ':'ﾋﾟ','プ':'ﾌﾟ','ペ':'ﾍﾟ','ポ':'ﾎﾟ','ヴ':'ｳﾞ'};
+function toHalfKana(s){return s.replace(/[ガ-ポヴ]/g,m=>voiced[m]||m).replace(/[。「」、・ヲァ-ンー]/g,m=>halfKanaMap[m]||m)}
+function toFullAscii(s,includeSymbols){return s.replace(/[!-~]/g,c=>{if(!includeSymbols&& !/[A-Za-z0-9]/.test(c))return c;return String.fromCharCode(c.charCodeAt(0)+0xFEE0)})}
+function toHalfAscii(s,includeSymbols){return s.replace(/[！-～]/g,c=>{const code=c.charCodeAt(0)-0xFEE0;const ch=String.fromCharCode(code);if(!includeSymbols&&!/[A-Za-z0-9]/.test(ch))return c;return ch})}
+function normalizeText(s){
+ if($('kana').value==='full')s=s.normalize('NFKC');
+ if($('kana').value==='half')s=toHalfKana(s.normalize('NFC'));
+ if($('ascii').value==='half')s=toHalfAscii(s,false);else if($('ascii').value==='full')s=toFullAscii(s,false);
+ if($('symbol').value==='half')s=toHalfAscii(s,true);else if($('symbol').value==='full')s=toFullAscii(s,true);
+ if($('space').value==='half')s=s.replace(/　/g,' ');else if($('space').value==='full')s=s.replace(/ /g,'　');
+ return s;
+}
+function convertText(){const src=$('input').value,out=normalizeText(src);$('output').value=out;$('before').textContent=src.length;$('after').textContent=out.length;let d=0,ml=Math.max(src.length,out.length);for(let i=0;i<ml;i++)if(src[i]!==out[i])d++;$('changed').textContent=d}
+$('input').addEventListener('input',convertText);['ascii','space','kana','symbol'].forEach(id=>$(id).addEventListener('change',convertText));
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;currentName=f.name.replace(/(\.[^.]+)?$/, '_normalized$1');const buf=await f.arrayBuffer();let text='';try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch{text=new TextDecoder('shift_jis').decode(buf)}$('input').value=text;convertText()});
+async function copyOut(){try{await navigator.clipboard.writeText($('output').value);alert('コピーしました')}catch{ $('output').select();document.execCommand('copy');alert('コピーしました')}}
+function downloadOut(){const blob=new Blob([$('output').value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=currentName;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+function clearAll(){$('input').value='';$('output').value='';$('file').value='';currentName='converted.txt';$('before').textContent=$('after').textContent=$('changed').textContent='0'}
+presetBusiness();
+</script>
+</body>
+</html>
