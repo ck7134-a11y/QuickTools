@@ -5,66 +5,89 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>全角・半角統一ツール | QuickTools</title>
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--ink:#1f2937;--muted:#6b7280;--line:#dbe1ea;--blue:#2563eb;--green:#15803d}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:var(--bg);color:var(--ink)}
-header{background:#111827;color:#fff;padding:22px 16px}header>div,main{max-width:1100px;margin:auto}h1{font-size:24px;margin:0}header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
-main{padding:18px 12px 50px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:14px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.opt{border:1px solid var(--line);border-radius:12px;padding:11px;background:#fafcff}.opt label{font-weight:700;font-size:13px}.opt select{width:100%;margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:9px;background:#fff}
-textarea{width:100%;min-height:330px;padding:12px;border:1px solid var(--line);border-radius:12px;resize:vertical;font:14px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#fff}
-button{border:0;border-radius:11px;padding:11px 15px;font-weight:800;background:var(--blue);color:white;cursor:pointer}button.secondary{background:#eef2f7;color:#25324a}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.filepick{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff}.hint{font-size:12px;color:var(--muted);line-height:1.6}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#f8fafc;border-radius:10px;padding:9px}.stat small{display:block;color:var(--muted)}.stat b{font-size:17px}.preset{display:flex;gap:8px;flex-wrap:wrap}.badge{font-size:11px;background:#ecfdf5;color:#166534;border:1px solid #bbf7d0;border-radius:999px;padding:5px 9px}
-@media(max-width:760px){.grid,.opts{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}textarea{min-height:240px}}
+:root{--bg:#f4f6f8;--surface:#ffffff;--ink:#14181f;--muted:#7b8491;--line:#e7eaee;--accent:#111827;--accent2:#2f6fed;--soft:#f8fafc;--green:#18794e;--shadow:0 18px 50px rgba(15,23,42,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:linear-gradient(180deg,#f7f8fa 0,#f2f4f7 100%);color:var(--ink)}
+.wrap{max-width:1180px;margin:auto;padding:0 18px}.topbar{padding:20px 0 10px}.brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;color:#374151}.brandmark{width:30px;height:30px;border-radius:9px;background:#111827;color:white;display:grid;place-items:center;font-size:12px}.hero{padding:46px 0 32px}.eyebrow{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:12px;color:#5b6470;box-shadow:0 4px 16px rgba(15,23,42,.04)}h1{font-size:clamp(34px,5vw,58px);line-height:1.06;letter-spacing:-.045em;margin:18px 0 14px;max-width:760px}.hero p{font-size:16px;line-height:1.8;color:var(--muted);max-width:720px;margin:0}.workspace{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start;padding-bottom:50px}.panel{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.settings{padding:18px;position:sticky;top:14px}.section-title{font-size:13px;font-weight:800;margin:0 0 12px;color:#303641}.preset{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:18px}button{appearance:none;border:0;cursor:pointer;font:inherit}.btn{height:43px;border-radius:12px;padding:0 14px;font-weight:750;transition:.18s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn:hover{transform:translateY(-1px)}.btn-primary{background:var(--accent);color:white;box-shadow:0 7px 18px rgba(17,24,39,.16)}.btn-soft{background:#f3f5f7;color:#374151;border:1px solid #eceff2}.option-list{display:grid;gap:9px}.option{padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#fbfcfd}.option label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}.option select{width:100%;height:38px;border:1px solid #e1e5ea;border-radius:10px;background:white;padding:0 10px;color:#27313e}.privacy{display:flex;align-items:flex-start;gap:9px;margin-top:16px;background:#f1f8f4;border:1px solid #d9eee2;color:#326247;padding:11px;border-radius:13px;font-size:11px;line-height:1.55}.main{display:grid;gap:14px}.upload{padding:15px}.uploadbox{position:relative;border:1.5px dashed #cfd6de;border-radius:17px;background:#fafbfc;padding:18px;text-align:center;transition:.2s}.uploadbox:hover{border-color:#98a4b3;background:white}.uploadbox input{width:100%;margin-top:10px;font-size:12px}.upload-title{font-weight:800}.upload-help{font-size:11px;color:var(--muted);margin-top:4px}.editors{display:grid;grid-template-columns:1fr 1fr;gap:14px}.editor{padding:14px}.editor-head{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}.editor-head h2{font-size:13px;margin:0}.counter{font-size:11px;color:var(--muted);background:#f4f6f8;padding:5px 8px;border-radius:999px}.textarea-wrap{position:relative}textarea{width:100%;min-height:390px;resize:vertical;border:1px solid #e4e7eb;border-radius:16px;padding:16px;background:#fbfcfd;color:#1f2937;font:14px/1.8 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;outline:none;transition:.2s}textarea:focus{background:white;border-color:#b8c2cf;box-shadow:0 0 0 4px rgba(47,111,237,.06)}#output{background:#f8fafc}.actions{padding:14px;display:flex;gap:9px;flex-wrap:wrap}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 14px 14px}.stat{background:#f8f9fb;border:1px solid #eef0f2;border-radius:14px;padding:12px}.stat small{display:block;color:var(--muted);font-size:10px;margin-bottom:3px}.stat b{font-size:20px;letter-spacing:-.02em}.footer{padding:22px 0 40px;color:#9aa1ab;font-size:11px;text-align:center}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}.settings{position:static}.preset{grid-template-columns:repeat(3,1fr)}.editors{grid-template-columns:1fr}textarea{min-height:280px}}
+@media(max-width:620px){.wrap{padding:0 12px}.hero{padding:28px 0 22px}h1{font-size:36px}.preset{grid-template-columns:1fr}.actions .btn{width:100%}.stats{grid-template-columns:1fr 1fr 1fr}.workspace{gap:12px}.panel{border-radius:18px}}
 </style>
 </head>
 <body>
-<header><div><h1>全角・半角統一ツール</h1><p>テキスト・TXT・CSVの表記ゆれをブラウザ内でまとめて整えます</p></div></header>
-<main>
-<section class="card">
-<div class="preset"><button onclick="presetBusiness()">業務向け標準化</button><button class="secondary" onclick="presetFull()">全角寄せ</button><button class="secondary" onclick="presetHalf()">半角寄せ</button><span class="badge">ファイルは外部送信しません</span></div>
-<div class="opts" style="margin-top:14px">
-<div class="opt"><label>英数字</label><select id="ascii"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
-<div class="opt"><label>スペース</label><select id="space"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
-<div class="opt"><label>カタカナ</label><select id="kana"><option value="full">全角に統一</option><option value="half">半角に統一</option><option value="keep">変更しない</option></select></div>
-<div class="opt"><label>一般記号</label><select id="symbol"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+<div class="wrap">
+  <div class="topbar"><div class="brand"><div class="brandmark">Q</div>QuickTools</div></div>
+  <section class="hero">
+    <span class="eyebrow">Text utility ・ Browser only</span>
+    <h1>全角・半角を、<br>きれいに揃える。</h1>
+    <p>英数字・スペース・カタカナ・記号の表記ゆれをワンクリックで整理。テキスト貼り付け、TXT、CSVの読み込みに対応しています。</p>
+  </section>
+  <section class="workspace">
+    <aside class="panel settings">
+      <p class="section-title">変換ルール</p>
+      <div class="preset">
+        <button class="btn btn-primary" onclick="presetBusiness()">業務向け標準化</button>
+        <button class="btn btn-soft" onclick="presetFull()">すべて全角寄せ</button>
+        <button class="btn btn-soft" onclick="presetHalf()">すべて半角寄せ</button>
+      </div>
+      <div class="option-list">
+        <div class="option"><label>英数字</label><select id="ascii"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+        <div class="option"><label>スペース</label><select id="space"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+        <div class="option"><label>カタカナ</label><select id="kana"><option value="full">全角に統一</option><option value="half">半角に統一</option><option value="keep">変更しない</option></select></div>
+        <div class="option"><label>一般記号</label><select id="symbol"><option value="half">半角に統一</option><option value="full">全角に統一</option><option value="keep">変更しない</option></select></div>
+      </div>
+      <div class="privacy">🔒 <span>処理はブラウザ内で完結します。入力したテキストやファイル内容は通常、外部サーバーへ送信されません。</span></div>
+    </aside>
+    <div class="main">
+      <div class="panel upload">
+        <div class="uploadbox">
+          <div class="upload-title">TXT / CSV を読み込む</div>
+          <div class="upload-help">UTF-8 / Shift_JISを自動判定。保存はUTF-8です。</div>
+          <input id="file" type="file" accept=".txt,.csv,text/plain,text/csv">
+        </div>
+      </div>
+      <div class="editors">
+        <div class="panel editor">
+          <div class="editor-head"><h2>変換前</h2><span class="counter"><span id="beforeMini">0</span> chars</span></div>
+          <textarea id="input" placeholder="ここにテキストを貼り付けてください"></textarea>
+        </div>
+        <div class="panel editor">
+          <div class="editor-head"><h2>変換後</h2><span class="counter"><span id="afterMini">0</span> chars</span></div>
+          <textarea id="output" readonly placeholder="変換結果がここに表示されます"></textarea>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="actions">
+          <button class="btn btn-primary" onclick="convertText()">変換する</button>
+          <button class="btn btn-soft" onclick="copyOut()">コピー</button>
+          <button class="btn btn-soft" onclick="downloadOut()">TXTで保存</button>
+          <button class="btn btn-soft" onclick="clearAll()">クリア</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><small>変換前文字数</small><b id="before">0</b></div>
+          <div class="stat"><small>変換後文字数</small><b id="after">0</b></div>
+          <div class="stat"><small>変更箇所目安</small><b id="changed">0</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="footer">QuickTools ・ Simple tools for everyday work</div>
 </div>
-</section>
-<section class="card">
-<label><b>テキストファイルを読み込む</b></label>
-<input id="file" class="filepick" type="file" accept=".txt,.csv,text/plain,text/csv">
-<p class="hint">UTF-8 / Shift_JIS を自動判定して読み込みます。保存はUTF-8です。</p>
-</section>
-<section class="grid">
-<div class="card"><h3>変換前</h3><textarea id="input" placeholder="ここにテキストを貼り付けるか、上からファイルを読み込んでください"></textarea></div>
-<div class="card"><h3>変換後</h3><textarea id="output" readonly></textarea></div>
-</section>
-<section class="card">
-<div class="actions"><button onclick="convertText()">変換する</button><button class="secondary" onclick="copyOut()">変換後をコピー</button><button class="secondary" onclick="downloadOut()">TXTで保存</button><button class="secondary" onclick="clearAll()">クリア</button></div>
-<div class="stats"><div class="stat"><small>変換前文字数</small><b id="before">0</b></div><div class="stat"><small>変換後文字数</small><b id="after">0</b></div><div class="stat"><small>変更箇所目安</small><b id="changed">0</b></div></div>
-</section>
-</main>
 <script>
 const $=id=>document.getElementById(id);let currentName='converted.txt';
-function presetBusiness(){$('ascii').value='half';$('space').value='half';$('kana').value='full';$('symbol').value='half'}
-function presetFull(){$('ascii').value='full';$('space').value='full';$('kana').value='full';$('symbol').value='full'}
-function presetHalf(){$('ascii').value='half';$('space').value='half';$('kana').value='half';$('symbol').value='half'}
+function presetBusiness(){$('ascii').value='half';$('space').value='half';$('kana').value='full';$('symbol').value='half';convertText()}
+function presetFull(){$('ascii').value='full';$('space').value='full';$('kana').value='full';$('symbol').value='full';convertText()}
+function presetHalf(){$('ascii').value='half';$('space').value='half';$('kana').value='half';$('symbol').value='half';convertText()}
 const halfKanaMap={'。':'｡','「':'｢','」':'｣','、':'､','・':'･','ヲ':'ｦ','ァ':'ｧ','ィ':'ｨ','ゥ':'ｩ','ェ':'ｪ','ォ':'ｫ','ャ':'ｬ','ュ':'ｭ','ョ':'ｮ','ッ':'ｯ','ー':'ｰ','ア':'ｱ','イ':'ｲ','ウ':'ｳ','エ':'ｴ','オ':'ｵ','カ':'ｶ','キ':'ｷ','ク':'ｸ','ケ':'ｹ','コ':'ｺ','サ':'ｻ','シ':'ｼ','ス':'ｽ','セ':'ｾ','ソ':'ｿ','タ':'ﾀ','チ':'ﾁ','ツ':'ﾂ','テ':'ﾃ','ト':'ﾄ','ナ':'ﾅ','ニ':'ﾆ','ヌ':'ﾇ','ネ':'ﾈ','ノ':'ﾉ','ハ':'ﾊ','ヒ':'ﾋ','フ':'ﾌ','ヘ':'ﾍ','ホ':'ﾎ','マ':'ﾏ','ミ':'ﾐ','ム':'ﾑ','メ':'ﾒ','モ':'ﾓ','ヤ':'ﾔ','ユ':'ﾕ','ヨ':'ﾖ','ラ':'ﾗ','リ':'ﾘ','ル':'ﾙ','レ':'ﾚ','ロ':'ﾛ','ワ':'ﾜ','ン':'ﾝ'};
 const voiced={'ガ':'ｶﾞ','ギ':'ｷﾞ','グ':'ｸﾞ','ゲ':'ｹﾞ','ゴ':'ｺﾞ','ザ':'ｻﾞ','ジ':'ｼﾞ','ズ':'ｽﾞ','ゼ':'ｾﾞ','ゾ':'ｿﾞ','ダ':'ﾀﾞ','ヂ':'ﾁﾞ','ヅ':'ﾂﾞ','デ':'ﾃﾞ','ド':'ﾄﾞ','バ':'ﾊﾞ','ビ':'ﾋﾞ','ブ':'ﾌﾞ','ベ':'ﾍﾞ','ボ':'ﾎﾞ','パ':'ﾊﾟ','ピ':'ﾋﾟ','プ':'ﾌﾟ','ペ':'ﾍﾟ','ポ':'ﾎﾟ','ヴ':'ｳﾞ'};
 function toHalfKana(s){return s.replace(/[ガ-ポヴ]/g,m=>voiced[m]||m).replace(/[。「」、・ヲァ-ンー]/g,m=>halfKanaMap[m]||m)}
-function toFullAscii(s,includeSymbols){return s.replace(/[!-~]/g,c=>{if(!includeSymbols&& !/[A-Za-z0-9]/.test(c))return c;return String.fromCharCode(c.charCodeAt(0)+0xFEE0)})}
-function toHalfAscii(s,includeSymbols){return s.replace(/[！-～]/g,c=>{const code=c.charCodeAt(0)-0xFEE0;const ch=String.fromCharCode(code);if(!includeSymbols&&!/[A-Za-z0-9]/.test(ch))return c;return ch})}
-function normalizeText(s){
- if($('kana').value==='full')s=s.normalize('NFKC');
- if($('kana').value==='half')s=toHalfKana(s.normalize('NFC'));
- if($('ascii').value==='half')s=toHalfAscii(s,false);else if($('ascii').value==='full')s=toFullAscii(s,false);
- if($('symbol').value==='half')s=toHalfAscii(s,true);else if($('symbol').value==='full')s=toFullAscii(s,true);
- if($('space').value==='half')s=s.replace(/　/g,' ');else if($('space').value==='full')s=s.replace(/ /g,'　');
- return s;
-}
-function convertText(){const src=$('input').value,out=normalizeText(src);$('output').value=out;$('before').textContent=src.length;$('after').textContent=out.length;let d=0,ml=Math.max(src.length,out.length);for(let i=0;i<ml;i++)if(src[i]!==out[i])d++;$('changed').textContent=d}
+function toFullAscii(s,includeSymbols){return s.replace(/[!-~]/g,c=>{if(!includeSymbols&&!/[A-Za-z0-9]/.test(c))return c;return String.fromCharCode(c.charCodeAt(0)+0xFEE0)})}
+function toHalfAscii(s,includeSymbols){return s.replace(/[！-～]/g,c=>{const code=c.charCodeAt(0)-0xFEE0,ch=String.fromCharCode(code);if(!includeSymbols&&!/[A-Za-z0-9]/.test(ch))return c;return ch})}
+function normalizeText(s){if($('kana').value==='full')s=s.normalize('NFKC');if($('kana').value==='half')s=toHalfKana(s.normalize('NFC'));if($('ascii').value==='half')s=toHalfAscii(s,false);else if($('ascii').value==='full')s=toFullAscii(s,false);if($('symbol').value==='half')s=toHalfAscii(s,true);else if($('symbol').value==='full')s=toFullAscii(s,true);if($('space').value==='half')s=s.replace(/　/g,' ');else if($('space').value==='full')s=s.replace(/ /g,'　');return s}
+function convertText(){const src=$('input').value,out=normalizeText(src);$('output').value=out;$('before').textContent=src.length;$('after').textContent=out.length;$('beforeMini').textContent=src.length;$('afterMini').textContent=out.length;let d=0,ml=Math.max(src.length,out.length);for(let i=0;i<ml;i++)if(src[i]!==out[i])d++;$('changed').textContent=d}
 $('input').addEventListener('input',convertText);['ascii','space','kana','symbol'].forEach(id=>$(id).addEventListener('change',convertText));
-$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;currentName=f.name.replace(/(\.[^.]+)?$/, '_normalized$1');const buf=await f.arrayBuffer();let text='';try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch{text=new TextDecoder('shift_jis').decode(buf)}$('input').value=text;convertText()});
-async function copyOut(){try{await navigator.clipboard.writeText($('output').value);alert('コピーしました')}catch{ $('output').select();document.execCommand('copy');alert('コピーしました')}}
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;currentName=f.name.replace(/(\.[^.]+)?$/,'_normalized$1');const buf=await f.arrayBuffer();let text='';try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch{text=new TextDecoder('shift_jis').decode(buf)}$('input').value=text;convertText()});
+async function copyOut(){try{await navigator.clipboard.writeText($('output').value);alert('コピーしました')}catch{$('output').select();document.execCommand('copy');alert('コピーしました')}}
 function downloadOut(){const blob=new Blob([$('output').value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=currentName;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
-function clearAll(){$('input').value='';$('output').value='';$('file').value='';currentName='converted.txt';$('before').textContent=$('after').textContent=$('changed').textContent='0'}
+function clearAll(){$('input').value='';$('output').value='';$('file').value='';currentName='converted.txt';$('before').textContent=$('after').textContent=$('changed').textContent=$('beforeMini').textContent=$('afterMini').textContent='0'}
 presetBusiness();
 </script>
 </body>
