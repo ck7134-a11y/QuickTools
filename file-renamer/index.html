@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ファイル名一括変更｜QuickTools</title>
+<meta name="description" content="複数ファイルの名前を一括変更。連番、接頭辞、末尾、文字置換、全角半角、大文字小文字、並び替えに対応。ブラウザ内処理で安全。">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#f4f7fb;--card:#ffffff;--ink:#172033;--muted:#667085;--line:#dfe6ef;--primary:#2563eb;--primary2:#4f46e5;--soft:#eef4ff;--danger:#b42318;--ok:#15803d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#eef4ff 0,#f8fafc 32%,#f4f7fb 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;line-height:1.6}
+header{padding:28px 16px 8px}header>div,main{max-width:1080px;margin:auto}.brand{display:flex;align-items:center;gap:10px;font-weight:900}.logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:grid;place-items:center;color:#fff;box-shadow:0 8px 22px rgba(37,99,235,.25)}
+.hero{text-align:center;padding:34px 14px 18px}.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.12;margin:0;letter-spacing:-.03em}.hero p{color:var(--muted);margin:12px auto 0;max-width:680px}.badge{display:inline-flex;align-items:center;gap:6px;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;margin-top:14px}
+main{padding:0 12px 50px}.card{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid rgba(223,230,239,.9);border-radius:22px;padding:20px;box-shadow:0 16px 42px rgba(15,23,42,.06);margin-bottom:16px}.drop{border:2px dashed #9db2ce;border-radius:18px;padding:34px 18px;text-align:center;background:linear-gradient(180deg,#fbfdff,#f7faff);transition:.2s}.drop.drag{border-color:var(--primary);background:#eef5ff;transform:translateY(-1px)}.dropIcon{width:52px;height:52px;border-radius:16px;background:var(--soft);display:grid;place-items:center;margin:0 auto 10px;font-size:24px}.pick{margin-top:12px;width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}.panelTitle{font-size:14px;font-weight:900;margin:0 0 12px}.field{margin-bottom:12px}.field label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-bottom:5px}.field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font:inherit}.fieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.seg button{background:#f3f6fa;color:#344054}.seg button.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+button{border:0;border-radius:11px;padding:11px 14px;font-weight:850;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;transition:.18s}button:hover{transform:translateY(-1px)}button.secondary{background:#eef2f7;color:#344054}button.danger{background:#fff0ee;color:var(--danger)}button:disabled{opacity:.45;cursor:not-allowed;transform:none}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.status{font-size:12px;color:var(--ok);margin-top:10px;min-height:20px}.mini{font-size:11px;color:var(--muted)}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff}table{width:100%;border-collapse:collapse;min-width:700px}th,td{padding:11px 12px;border-bottom:1px solid #edf1f5;text-align:left;font-size:12px;vertical-align:middle}th{background:#f8fafc;color:#667085;font-weight:850;position:sticky;top:0}tr:last-child td{border-bottom:0}.old{color:#667085}.new{font-weight:800}.ext{color:#475467}.rowActions{white-space:nowrap}.rowActions button{padding:7px 9px;font-size:11px}.dragHandle{cursor:grab;color:#98a2b3;font-size:16px}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#f8fafc;border:1px solid #edf1f5;border-radius:12px;padding:10px}.stat small{display:block;color:var(--muted)}.stat b{font-size:17px}.note{background:#fff7ed;color:#9a3412;padding:11px;border-radius:11px;font-size:12px;margin-top:12px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr 1fr}}@media(max-width:560px){.fieldGrid,.summary{grid-template-columns:1fr}.hero{padding-top:22px}.card{padding:15px;border-radius:18px}.seg{grid-template-columns:1fr}.actions button{width:100%}}
+</style>
+</head>
+<body>
+<header><div><div class="brand"><div class="logo">Q</div><div>QuickTools</div></div></div></header>
+<main>
+<section class="hero"><h1>ファイル名を、まとめて整える。</h1><p>連番、接頭辞・末尾、文字置換、全角半角、大文字小文字まで。複数ファイルを一括でリネームしてZIP保存できます。</p><div class="badge">🔒 ファイルはブラウザ内で処理</div></section>
+
+<section class="card"><div id="drop" class="drop"><div class="dropIcon">📁</div><b>ファイルを選択 / ドロップ</b><div class="mini">複数選択OK・どんなファイル形式でも使えます</div><input id="pick" class="pick" type="file" multiple></div></section>
+
+<section class="layout">
+<div class="card">
+<h2 class="panelTitle">変更ルール</h2>
+<div class="field"><label>命名方法</label><div class="seg"><button id="modeKeep" class="active" type="button">元名を残す</button><button id="modeBase" type="button">新しい名前</button><button id="modeOnly" type="button">連番のみ</button></div></div>
+<div class="field" id="baseWrap"><label>ベース名</label><input id="baseName" placeholder="例：CLF1088"></div>
+<div class="fieldGrid">
+<div class="field"><label>先頭に追加</label><input id="prefix" placeholder="例：2026_"></div>
+<div class="field"><label>末尾に追加</label><input id="suffix" placeholder="例：_WEB"></div>
+</div>
+<div class="fieldGrid">
+<div class="field"><label>置換前</label><input id="findText" placeholder="IMG"></div>
+<div class="field"><label>置換後</label><input id="replaceText" placeholder="商品"></div>
+</div>
+<div class="fieldGrid">
+<div class="field"><label>開始番号</label><input id="startNo" type="number" value="1" min="0"></div>
+<div class="field"><label>桁数</label><select id="digits"><option value="1">1 → 1</option><option value="2" selected>2 → 01</option><option value="3">3 → 001</option><option value="4">4 → 0001</option></select></div>
+</div>
+<div class="field"><label>連番の付け方</label><select id="serialMode"><option value="none">連番なし</option><option value="after" selected>名前の後ろ</option><option value="before">名前の前</option></select></div>
+<div class="fieldGrid">
+<div class="field"><label>英字</label><select id="caseMode"><option value="keep">変更しない</option><option value="upper">大文字</option><option value="lower">小文字</option></select></div>
+<div class="field"><label>全角・半角</label><select id="widthMode"><option value="keep">変更しない</option><option value="half">英数字を半角</option><option value="full">英数字を全角</option></select></div>
+</div>
+<div class="field"><label>スペース</label><select id="spaceMode"><option value="keep">変更しない</option><option value="underscore">_ に置換</option><option value="hyphen">- に置換</option><option value="remove">削除</option></select></div>
+<div class="actions"><button id="apply">プレビュー更新</button><button id="reset" class="secondary">ルールをリセット</button></div>
+<div class="note">元ファイル自体は書き換えません。変更後の名前を付けたコピーをZIPにまとめて保存します。</div>
+</div>
+
+<div class="card">
+<h2 class="panelTitle">変更プレビュー</h2>
+<div class="tableWrap"><table><thead><tr><th></th><th>変更前</th><th>→</th><th>変更後</th><th>サイズ</th><th></th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="summary"><div class="stat"><small>ファイル数</small><b id="count">0</b></div><div class="stat"><small>重複名</small><b id="duplicates">0</b></div><div class="stat"><small>合計容量</small><b id="totalSize">0 B</b></div></div>
+<div class="actions"><button id="zipBtn" disabled>まとめてZIP保存</button><button id="clear" class="secondary">すべてクリア</button></div><div id="status" class="status"></div>
+</div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);let files=[],mode='keep';
+const fmt=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';
+const splitName=n=>{const i=n.lastIndexOf('.');return i>0?[n.slice(0,i),n.slice(i)]:[n,'']};
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function toHalfAscii(s){return s.replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/　/g,' ')}
+function toFullAscii(s){return s.replace(/[!-~]/g,c=>String.fromCharCode(c.charCodeAt(0)+0xFEE0))}
+function transformBase(name,index){let [stem,ext]=splitName(name);let text=stem;
+ if(mode==='base') text=$('baseName').value.trim()||stem;
+ if(mode==='only') text='';
+ const find=$('findText').value;if(find)text=text.split(find).join($('replaceText').value);
+ if($('caseMode').value==='upper')text=text.toUpperCase();else if($('caseMode').value==='lower')text=text.toLowerCase();
+ if($('widthMode').value==='half')text=toHalfAscii(text);else if($('widthMode').value==='full')text=toFullAscii(text);
+ if($('spaceMode').value==='underscore')text=text.replace(/\s+/g,'_');else if($('spaceMode').value==='hyphen')text=text.replace(/\s+/g,'-');else if($('spaceMode').value==='remove')text=text.replace(/\s+/g,'');
+ const no=String((+$('startNo').value||0)+index).padStart(+$('digits').value,'0');const sm=$('serialMode').value;
+ if(mode==='only')text=no;else if(sm==='after')text=text+(text?'_':'')+no;else if(sm==='before')text=no+(text?'_':'')+text;
+ text=$('prefix').value+text+$('suffix').value;
+ return (text||stem)+ext;
+}
+function preview(){const names=files.map((f,i)=>transformBase(f.name,i));const dup=new Set(names.filter((n,i,a)=>a.indexOf(n)!==i));$('duplicates').textContent=dup.size;$('count').textContent=files.length;$('totalSize').textContent=fmt(files.reduce((s,f)=>s+f.size,0));$('zipBtn').disabled=!files.length||dup.size>0;
+ $('tbody').innerHTML=files.length?files.map((f,i)=>`<tr draggable="true" data-i="${i}"><td class="dragHandle">⋮⋮</td><td class="old">${esc(f.name)}</td><td>→</td><td class="new">${esc(names[i])}${dup.has(names[i])?' <span style="color:#b42318">重複</span>':''}</td><td>${fmt(f.size)}</td><td class="rowActions"><button class="danger" onclick="removeFile(${i})">削除</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:#98a2b3;padding:28px">ファイルを追加してください</td></tr>';bindRows()}
+function add(fs){files.push(...[...fs]);$('status').textContent='';preview()}
+$('pick').onchange=e=>{add(e.target.files);e.target.value=''};['dragenter','dragover'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.add('drag')}));['dragleave','drop'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.remove('drag')}));$('drop').addEventListener('drop',e=>add(e.dataTransfer.files));
+function removeFile(i){files.splice(i,1);preview()}
+function bindRows(){let from=null;document.querySelectorAll('tbody tr[draggable="true"]').forEach(r=>{r.ondragstart=()=>from=+r.dataset.i;r.ondragover=e=>e.preventDefault();r.ondrop=()=>{const to=+r.dataset.i;if(from===null||from===to)return;const [x]=files.splice(from,1);files.splice(to,0,x);from=null;preview()}})}
+function setMode(m){mode=m;['Keep','Base','Only'].forEach(x=>$('mode'+x).classList.toggle('active',x.toLowerCase()===m));$('baseWrap').style.display=m==='base'?'block':'none';if(m==='only')$('serialMode').value='none';preview()}
+$('modeKeep').onclick=()=>setMode('keep');$('modeBase').onclick=()=>setMode('base');$('modeOnly').onclick=()=>setMode('only');
+['baseName','prefix','suffix','findText','replaceText','startNo','digits','serialMode','caseMode','widthMode','spaceMode'].forEach(id=>$(id).addEventListener('input',preview));
+$('apply').onclick=preview;$('reset').onclick=()=>{$('baseName').value='';$('prefix').value='';$('suffix').value='';$('findText').value='';$('replaceText').value='';$('startNo').value=1;$('digits').value='2';$('serialMode').value='after';$('caseMode').value='keep';$('widthMode').value='keep';$('spaceMode').value='keep';setMode('keep')};
+$('clear').onclick=()=>{files=[];$('pick').value='';$('status').textContent='';preview()};
+$('zipBtn').onclick=async()=>{if(!files.length)return;const names=files.map((f,i)=>transformBase(f.name,i));if(new Set(names).size!==names.length){$('status').textContent='重複するファイル名があります。';return}$('status').textContent='ZIPを作成しています…';const z=new JSZip();files.forEach((f,i)=>z.file(names[i],f));const blob=await z.generateAsync({type:'blob',compression:'DEFLATE'});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='QuickTools_renamed_files.zip';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000);$('status').textContent='ZIPを保存しました。'};
+setMode('keep');preview();
+</script>
+</body>
+</html>
