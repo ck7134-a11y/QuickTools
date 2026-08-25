@@ -4,55 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ファイル名一括変更｜QuickTools</title>
-<meta name="description" content="複数ファイルの名前を、シンプルな操作で一括変更。ベース名と連番を指定してZIP保存できます。">
+<meta name="description" content="複数ファイルの名前をシンプルに一括変更。新しい名前と連番を指定してZIP保存できます。">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-:root{--bg:#f7f8fb;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--primary:#111827;--accent:#2563eb;--soft:#eff6ff;--ok:#166534}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fafbff 0,#f5f7fb 100%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:var(--ink)}
-header{padding:24px 18px}.wrap{max-width:920px;margin:auto}.brand{font-weight:900;font-size:18px}.hero{text-align:center;padding:42px 16px 26px}.hero h1{font-size:clamp(30px,6vw,48px);letter-spacing:-.04em;margin:0}.hero p{color:var(--muted);max-width:600px;margin:12px auto 0;line-height:1.7}.safe{display:inline-block;margin-top:14px;padding:7px 11px;border-radius:999px;background:#ecfdf3;color:#166534;font-size:12px;font-weight:800}
-main{max-width:920px;margin:auto;padding:0 14px 50px}.card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 18px 45px rgba(15,23,42,.06);margin-bottom:16px}.drop{border:2px dashed #cbd5e1;border-radius:18px;padding:36px 18px;text-align:center;background:#fbfdff;transition:.2s}.drop.drag{border-color:var(--accent);background:var(--soft)}.drop .icon{font-size:30px;margin-bottom:8px}.drop b{font-size:18px}.drop small{display:block;color:var(--muted);margin-top:5px}.pick{margin-top:14px;width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff}
-.controls{display:grid;grid-template-columns:1.7fr .8fr .8fr;gap:12px;align-items:end}.field label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px}.field input,.field select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit}.example{background:#f8fafc;border-radius:14px;padding:14px;margin-top:14px;color:#475569;font-size:13px}.example b{color:var(--ink)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:12px;padding:12px 16px;font-weight:850;background:var(--primary);color:#fff;cursor:pointer}button.secondary{background:#eef2f7;color:#374151}button:disabled{opacity:.45;cursor:not-allowed}.status{color:var(--ok);font-size:12px;margin-top:10px;min-height:20px}
-.list{overflow:hidden;border:1px solid var(--line);border-radius:16px}.row{display:grid;grid-template-columns:1fr 34px 1fr;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid #eef1f5;font-size:13px}.row:first-child{border-top:0}.old{color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.new{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.arrow{text-align:center;color:#9ca3af}.empty{text-align:center;color:#9ca3af;padding:28px}.summary{display:flex;justify-content:space-between;gap:12px;margin-top:12px;color:#6b7280;font-size:12px}
-@media(max-width:680px){.controls{grid-template-columns:1fr}.row{grid-template-columns:1fr}.arrow{text-align:left}.actions button{width:100%}.card{padding:16px;border-radius:20px}.hero{padding-top:28px}}
+:root{--bg:#f6f7fb;--ink:#0f172a;--muted:#64748b;--line:#e7eaf0;--card:#ffffff;--accent:#5b5cf0;--accent2:#7c3aed;--soft:#f2f3ff;--ok:#087a4b;--shadow:0 24px 70px rgba(15,23,42,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:var(--ink);background:radial-gradient(circle at 50% -10%,#eef0ff 0,#f8f9fc 34%,var(--bg) 68%);min-height:100vh}
+.shell{max-width:980px;margin:auto;padding:0 18px 56px}.topbar{height:72px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.02em}.brandMark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;box-shadow:0 10px 24px rgba(91,92,240,.25)}.pill{font-size:12px;color:#475569;background:rgba(255,255,255,.7);border:1px solid rgba(231,234,240,.9);padding:7px 10px;border-radius:999px;backdrop-filter:blur(10px)}
+.hero{text-align:center;padding:44px 0 28px}.eyebrow{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;background:#eefbf5;color:#13724c;font-size:12px;font-weight:800}.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.06;letter-spacing:-.055em;margin:18px 0 12px}.hero p{max-width:620px;margin:0 auto;color:var(--muted);font-size:16px;line-height:1.8}
+.card{background:rgba(255,255,255,.92);border:1px solid rgba(231,234,240,.9);border-radius:26px;box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+.app{padding:22px}.drop{border:1.5px dashed #c8cde0;border-radius:20px;padding:38px 18px;text-align:center;background:linear-gradient(180deg,#fcfcff,#f8f9ff);transition:.2s}.drop.drag{border-color:var(--accent);background:#f1f2ff;transform:translateY(-1px)}.uploadIcon{width:54px;height:54px;margin:0 auto 12px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#eef0ff,#f5f3ff);font-size:25px}.drop b{display:block;font-size:18px}.drop span{display:block;color:var(--muted);font-size:13px;margin-top:5px}.fileButton{display:inline-flex;align-items:center;justify-content:center;margin-top:16px;padding:11px 16px;border-radius:12px;background:var(--ink);color:white;font-weight:800;cursor:pointer}.fileButton input{display:none}
+.settings{margin-top:18px;padding:18px;border-radius:18px;background:#fafbfc;border:1px solid #eef1f5}.settingsTitle{font-size:12px;color:#778197;font-weight:800;margin-bottom:12px}.controls{display:grid;grid-template-columns:1.7fr .7fr .8fr;gap:10px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:750;margin-bottom:6px}.field input,.field select{width:100%;height:46px;border:1px solid var(--line);border-radius:12px;background:white;padding:0 13px;font:inherit;outline:none;transition:.15s}.field input:focus,.field select:focus{border-color:#a8a9ff;box-shadow:0 0 0 4px rgba(91,92,240,.08)}
+.previewBar{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:14px;background:var(--soft);color:#4b4ccf}.previewBar small{color:#7778cc}.previewBar strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.listCard{margin-top:16px;overflow:hidden}.listHead{display:flex;justify-content:space-between;align-items:center;padding:0 2px 10px}.listHead h2{font-size:13px;margin:0}.count{font-size:12px;color:var(--muted)}.list{border:1px solid var(--line);border-radius:16px;background:white;overflow:hidden}.row{display:grid;grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);gap:8px;align-items:center;padding:12px 14px;border-top:1px solid #f0f2f5;font-size:13px}.row:first-child{border-top:0}.old{color:#7a8498;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.new{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.arrow{text-align:center;color:#b1b7c6}.empty{padding:28px;text-align:center;color:#9aa3b6;font-size:13px}
+.footerActions{display:flex;justify-content:space-between;gap:10px;margin-top:18px}.btn{height:48px;border:0;border-radius:13px;padding:0 18px;font-weight:850;cursor:pointer;transition:.18s}.btn:hover{transform:translateY(-1px)}.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;box-shadow:0 12px 26px rgba(91,92,240,.24)}.secondary{background:#f1f3f7;color:#475569}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}.status{font-size:12px;color:var(--ok);min-height:18px;margin-top:10px;text-align:right}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.trustItem{padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.65);border:1px solid rgba(231,234,240,.85)}.trustItem b{display:block;font-size:12px}.trustItem span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+@media(max-width:680px){.shell{padding-left:12px;padding-right:12px}.topbar{height:62px}.pill{display:none}.hero{padding-top:30px}.app{padding:14px;border-radius:20px}.drop{padding:30px 14px}.controls{grid-template-columns:1fr 1fr}.controls .field:first-child{grid-column:1/-1}.footerActions{flex-direction:column-reverse}.btn{width:100%}.row{grid-template-columns:1fr}.arrow{text-align:left}.trust{grid-template-columns:1fr}.previewBar{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">QuickTools</div></div></header>
-<main>
-<section class="hero"><h1>ファイル名を、一気に変更。</h1><p>複数ファイルを選んで、新しい名前と連番を決めるだけ。難しい設定はありません。</p><span class="safe">🔒 ファイルはブラウザ内で処理</span></section>
-
-<section class="card">
-<div id="drop" class="drop"><div class="icon">📁</div><b>ファイルを選択 / ドロップ</b><small>複数ファイルをまとめて選べます</small><input id="pick" class="pick" type="file" multiple></div>
+<div class="shell">
+<div class="topbar"><div class="brand"><div class="brandMark">Q</div><span>QuickTools</span></div><div class="pill">File Renamer</div></div>
+<section class="hero"><div class="eyebrow">● ブラウザ内で安全に処理</div><h1>ファイル名を、<br>一瞬でそろえる。</h1><p>複数ファイルを選んで、新しい名前と連番を指定するだけ。余計な設定なしで、まとめて整理できます。</p></section>
+<section class="card app">
+<div id="drop" class="drop"><div class="uploadIcon">↥</div><b>ファイルをここにドロップ</b><span>またはボタンから複数ファイルを選択</span><label class="fileButton">ファイルを選択<input id="pick" type="file" multiple></label></div>
+<div class="settings"><div class="settingsTitle">RENAMING</div><div class="controls"><div class="field"><label>新しい名前</label><input id="base" placeholder="例：CLF1088"></div><div class="field"><label>開始番号</label><input id="start" type="number" min="0" value="1"></div><div class="field"><label>桁数</label><select id="digits"><option value="1">1</option><option value="2" selected>01</option><option value="3">001</option></select></div></div><div class="previewBar"><small>仕上がり例</small><strong id="example">CLF1088_01.jpg</strong></div></div>
+<div class="listCard"><div class="listHead"><h2>プレビュー</h2><span id="count" class="count">0ファイル</span></div><div id="list" class="list"><div class="empty">ファイルを追加すると、ここに変更後の名前が表示されます</div></div></div>
+<div class="footerActions"><button id="clear" class="btn secondary">クリア</button><button id="zip" class="btn primary" disabled>変更してZIP保存</button></div><div id="status" class="status"></div>
 </section>
-
-<section class="card">
-<div class="controls">
-<div class="field"><label>新しいファイル名</label><input id="base" placeholder="例：CLF1088"></div>
-<div class="field"><label>開始番号</label><input id="start" type="number" value="1" min="0"></div>
-<div class="field"><label>桁数</label><select id="digits"><option value="1">1, 2, 3</option><option value="2" selected>01, 02, 03</option><option value="3">001, 002, 003</option></select></div>
+<div class="trust"><div class="trustItem"><b>アップロード不要</b><span>ファイルは端末内で処理します</span></div><div class="trustItem"><b>拡張子を維持</b><span>jpg / xlsx / pdf などをそのまま保持</span></div><div class="trustItem"><b>複数ファイル対応</b><span>まとめて変更してZIPで保存</span></div></div>
 </div>
-<div id="example" class="example">例：<b>CLF1088_01.jpg</b></div>
-<div class="actions"><button id="zip" disabled>変更してZIP保存</button><button id="clear" class="secondary">クリア</button></div>
-<div id="status" class="status"></div>
-</section>
-
-<section class="card">
-<div id="list" class="list"><div class="empty">ファイルを追加してください</div></div>
-<div class="summary"><span id="count">0ファイル</span><span>元の拡張子はそのまま維持します</span></div>
-</section>
-</main>
 <script>
 const $=id=>document.getElementById(id);let files=[];
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function ext(name){const i=name.lastIndexOf('.');return i>0?name.slice(i):''}
 function newName(f,i){const base=$('base').value.trim()||'file';const no=String((+$('start').value||0)+i).padStart(+$('digits').value,'0');return `${base}_${no}${ext(f.name)}`}
 function render(){
- $('count').textContent=`${files.length}ファイル`;
- $('zip').disabled=!files.length;
- $('example').innerHTML=`例：<b>${esc(files.length?newName(files[0],0):(($('base').value.trim()||'CLF1088')+'_01.jpg'))}</b>`;
- if(!files.length){$('list').innerHTML='<div class="empty">ファイルを追加してください</div>';return}
- $('list').innerHTML=files.map((f,i)=>`<div class="row"><div class="old">${esc(f.name)}</div><div class="arrow">→</div><div class="new">${esc(newName(f,i))}</div></div>`).join('');
+ $('count').textContent=`${files.length}ファイル`;$('zip').disabled=!files.length;
+ $('example').textContent=files.length?newName(files[0],0):`${$('base').value.trim()||'CLF1088'}_${String(+$('start').value||1).padStart(+$('digits').value,'0')}.jpg`;
+ if(!files.length){$('list').innerHTML='<div class="empty">ファイルを追加すると、ここに変更後の名前が表示されます</div>';return}
+ $('list').innerHTML=files.map((f,i)=>`<div class="row"><div class="old">${esc(f.name)}</div><div class="arrow">→</div><div class="new">${esc(newName(f,i))}</div></div>`).join('')
 }
 function add(fs){files=[...files,...fs];$('status').textContent='';render()}
 $('pick').onchange=e=>{add([...e.target.files]);e.target.value=''};
@@ -61,12 +51,7 @@ $('pick').onchange=e=>{add([...e.target.files]);e.target.value=''};
 $('drop').addEventListener('drop',e=>add([...e.dataTransfer.files]));
 ['base','start','digits'].forEach(id=>$(id).addEventListener('input',render));
 $('clear').onclick=()=>{files=[];$('pick').value='';$('status').textContent='';render()};
-$('zip').onclick=async()=>{
- if(!files.length)return;
- const names=files.map(newName);if(new Set(names).size!==names.length){alert('変更後のファイル名が重複しています。');return}
- $('zip').disabled=true;$('status').textContent='ZIPを作成中…';
- try{const z=new JSZip();files.forEach((f,i)=>z.file(names[i],f));const blob=await z.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='renamed_files.zip';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000);$('status').textContent='保存しました。'}catch(e){$('status').textContent='保存に失敗しました。'}finally{$('zip').disabled=false}
-};
+$('zip').onclick=async()=>{if(!files.length)return;const names=files.map(newName);if(new Set(names).size!==names.length){alert('変更後のファイル名が重複しています。');return}$('zip').disabled=true;$('status').textContent='ZIPを作成中…';try{const z=new JSZip();files.forEach((f,i)=>z.file(names[i],f));const blob=await z.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='renamed_files.zip';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000);$('status').textContent='保存しました。'}catch(e){$('status').textContent='保存に失敗しました。'}finally{$('zip').disabled=false}};
 render();
 </script>
 </body>
