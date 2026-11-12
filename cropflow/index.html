@@ -91,7 +91,18 @@ function readImage(f){return new Promise((resolve,reject)=>{const u=URL.createOb
 async function previewImage(f){const {im:original,url}=await readImage(f);try{const scale=Math.min(1,1400/Math.max(original.naturalWidth,original.naturalHeight)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(original.naturalWidth*scale));c.height=Math.max(1,Math.round(original.naturalHeight*scale));c.getContext('2d').drawImage(original,0,0,c.width,c.height);const im=new Image();im.src=c.toDataURL('image/jpeg',.85);await im.decode();c.width=c.height=1;return im}finally{URL.revokeObjectURL(url)}}
 async function add(files){if(adding)return;adding=true;const valid=files.filter(f=>['image/jpeg','image/png','image/webp'].includes((f.type||'').toLowerCase())||/\.(jpe?g|png|webp)$/i.test(f.name));let errors=[];if(!valid.length){$('status').textContent='対応する画像がありません。JPG・PNG・WebPを選択してください。';adding=false;return}try{for(let n=0;n<valid.length;n++){const f=valid[n];try{const im=await previewImage(f);images.push({id:'i'+Math.random().toString(36).slice(2),file:f,img:im,crop:initial(im),brightness:100,saturation:100,hue:0,layerOverrides:{}})}catch(e){errors.push(f.name+' ('+(e.message||'decode failed')+')')}if(n%5===4||n===valid.length-1){try{show()}catch(e){console.error('画像一覧の表示エラー:',e)}try{refreshChipPicker()}catch(e){console.warn('カラーチップの更新エラー:',e)}$('progress').style.width=Math.round((n+1)/valid.length*100)+'%';$('status').textContent='読み込み中 '+(n+1)+' / '+valid.length;await new Promise(r=>setTimeout(r,0))}}$('status').textContent=errors.length?'読み込み失敗：'+errors.slice(0,3).join('; '):'読み込み完了：'+valid.length+'枚'}catch(e){$('status').textContent='画像取り込みエラー：'+(e.message||e);console.error(e)}finally{adding=false;setTimeout(()=>$('progress').style.width='0%',1200)}}
 // 画像取り込みは他の編集機能のエラーと切り離して先に登録
-$('pickBtn').onclick=e=>{e.stopPropagation();$('files').click()};$('drop').onclick=()=> $('files').click();$('drop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('files').click()}};$('files').onchange=async e=>{const files=[...e.target.files];e.target.value='';await add(files)};['dragover','dragenter'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.add('drag')}));['dragleave','drop'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.remove('drag')}));$('drop').addEventListener('drop',e=>add([...e.dataTransfer.files]));
+$('pickBtn').onclick=e=>{e.stopPropagation();$('files').click()};$('drop').onclick=()=> $('files').click();$('drop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('files').click()}};$('files').onchange=async e=>{const files=[...e.target.files];e.target.value='';await add(files)};
+let dragDepth=0;
+const dropZone=$('drop');
+function incomingFiles(e){return Array.from(e.dataTransfer?.files||[]).filter(f=>f&&f.name)}
+function hasFileDrag(e){const t=e.dataTransfer?.types;return !!t&&Array.from(t).includes('Files')}
+function dragFeedback(on){dropZone.classList.toggle('drag',on);dropZone.setAttribute('aria-label',on?'画像をここにドロップしてください':'画像をドラッグ＆ドロップ、または選択')}
+document.addEventListener('dragenter',e=>{if(!hasFileDrag(e))return;e.preventDefault();dragDepth++;dragFeedback(true)});
+document.addEventListener('dragover',e=>{if(!hasFileDrag(e))return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';dragFeedback(true)});
+document.addEventListener('dragleave',e=>{if(!hasFileDrag(e))return;dragDepth=Math.max(0,dragDepth-1);if(!dragDepth)dragFeedback(false)});
+document.addEventListener('drop',async e=>{if(!hasFileDrag(e))return;e.preventDefault();e.stopPropagation();dragDepth=0;dragFeedback(false);const files=incomingFiles(e);if(!files.length){$('status').textContent='画像ファイルをドロップしてください。';return}try{await add(files)}catch(err){$('status').textContent='ドラッグ読み込みエラー：'+(err.message||err)}});
+window.addEventListener('blur',()=>{dragDepth=0;dragFeedback(false)});
+
 $('clear').onclick=()=>{if(busy||adding)return;images=[];show();refreshChipPicker();$('status').textContent=''};$('resetAll').onclick=()=>{images.forEach(i=>i.crop=initial(i.img));show()};
 $('copyColor').onclick=()=>{if(images.length<2||busy)return;const first=images[0];for(let n=1;n<images.length;n++){images[n].brightness=first.brightness??100;images[n].saturation=first.saturation??100;images[n].hue=first.hue??0}show();$('status').textContent='1枚目の明度・彩度・色みを適用しました：'+(images.length-1)+'枚';};
 
@@ -119,15 +130,4 @@ function download(b,n){let u=URL.createObjectURL(b),a=document.createElement('a'
 async function saveOne(id){let i=item(id);if(!i)return;try{$('status').textContent='書き出し中：'+i.file.name;download(await output(i),filename(i));$('status').textContent='保存しました：'+filename(i)}catch(e){$('status').textContent=e.message}}
 $('exportAll').onclick=async()=>{if(busy||!images.length)return;if(typeof JSZip==='undefined'){$('status').textContent='ZIPライブラリを読み込めません。接続を確認してください。';return}busy=true;show();let zip=new JSZip(),used=new Set();try{for(let k=0;k<images.length;k++){let i=images[k],name=filename(i),base=name,n=2;while(used.has(name)){name=base.replace(/\.[^.]+$/,'')+'_'+n+'.'+extension();n++}used.add(name);zip.file(name,await output(i));$('progress').style.width=Math.round((k+1)/images.length*80)+'%';$('status').textContent='処理中 '+(k+1)+' / '+images.length}let b=await zip.generateAsync({type:'blob',compression:'DEFLATE'},m=>$('progress').style.width=(80+Math.round(m.percent*.2))+'%');download(b,($('downloadName').value.trim().replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').replace(/\.+$/,'').slice(0,90)||'CropFlow_画像')+'.zip');$('status').textContent='ZIPの準備完了 · '+images.length+'枚'}catch(e){$('status').textContent='書き出しエラー：'+e.message}finally{busy=false;show();setTimeout(()=>$('progress').style.width='0%',2000)}};
 try{show();refreshChipPicker()}catch(e){console.error('初期表示エラー',e);$('status').textContent='初期表示の一部でエラー：'+e.message}
-</script>
-<script>
-(function(){
- const picker=document.getElementById('files'),button=document.getElementById('pickBtn'),drop=document.getElementById('drop');
- if(!picker||!button||!drop)return;
- button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();picker.click()});
- drop.addEventListener('click',e=>{if(e.target===drop)picker.click()});
- picker.addEventListener('change',e=>{const fs=Array.from(e.target.files||[]);if(fs.length&&typeof window.add==='function'){window.add(fs)}else if(fs.length){document.getElementById('status').textContent='画像処理の初期化に失敗しました。表示された起動エラーをご連絡ください。'}});
- drop.addEventListener('drop',e=>{e.preventDefault();const fs=Array.from(e.dataTransfer?.files||[]);if(fs.length&&typeof window.add==='function')window.add(fs)});
- drop.addEventListener('dragover',e=>e.preventDefault());
-})();
 </script></body></html>
