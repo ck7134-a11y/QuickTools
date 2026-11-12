@@ -17,7 +17,8 @@ window.addEventListener('unhandledrejection',e=>{const el=document.getElementByI
 </script>
 <script>
 'use strict';
-const $=id=>document.getElementById(id), clamp=(n,a,b)=>Math.max(a,Math.min(b,n));let images=[],active=null,draft=null,drag=null,busy=false;const urls=[];let adding=false;
+const $=id=>document.getElementById(id), clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let images=[],active=null,draft=null,drag=null,busy=false;const urls=[];let adding=false;
 const dims=()=>({w:clamp(Math.round(+$('width').value||1280),1,10000),h:clamp(Math.round(+$('height').value||1280),1,10000)});
 const ratio=()=>{let d=dims();return d.w/d.h};
 let layers=[],selectedLayer=null,logoDrag=null,layerId=0,logoPhase='global',chipPoint={x:.5,y:.5};
@@ -48,7 +49,7 @@ $('savedSettings').onchange=()=>{const name=$('savedSettings').value,p=loadPrese
 $('deleteSettings').onclick=()=>{const name=$('savedSettings').value;if(!name)return;const p=loadPresetList();delete p[name];try{localStorage.setItem('cropflow-export-presets',JSON.stringify(p));refreshPresets();$('status').textContent='設定を削除しました：'+name}catch(e){$('status').textContent='設定を削除できませんでした。'}};
 $('paddingPct').oninput=()=>{$('paddingLabel').textContent=Math.round(margin()*100)+'%';show()};
 refreshPresets();
-const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 function normalize(r,im,ar){let x=r.x,y=r.y,w=r.w,h=r.h;if(ar){let cx=x+w/2,cy=y+h/2;if(w/h>ar)w=h*ar;else h=w/ar;let scale=Math.min(1,im.width/w,im.height/h);w*=scale;h*=scale;x=cx-w/2;y=cy-h/2}w=clamp(w,2,im.width);h=clamp(h,2,im.height);return{x:clamp(x,0,im.width-w),y:clamp(y,0,im.height-h),w,h}}
 function initial(im,ar=ratio()){let w=im.width*.94,h=w/ar;if(h>im.height*.94){h=im.height*.94;w=h*ar}return normalize({x:(im.width-w)/2,y:(im.height-h)/2,w,h},im,ar)}
 let poseDetector=null,smartRunning=false;
